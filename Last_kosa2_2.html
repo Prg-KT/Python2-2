@@ -1,0 +1,3253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<title>Pythonプログラミング実習②－2 定期考査クイズ</title>
+
+<style>
+:root {
+  --primary:#2563eb;
+  --primary-dark:#1d4ed8;
+  --primary-light:#dbeafe;
+  --bg:#f1f5f9;
+  --card:#fff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --border:#cbd5e1;
+  --correct:#15803d;
+  --correct-bg:#dcfce7;
+  --wrong:#b91c1c;
+  --wrong-bg:#fee2e2;
+  --warning:#b45309;
+  --warning-bg:#fef3c7;
+  --shadow:0 10px 30px rgba(15,23,42,.1);
+}
+
+* {
+  box-sizing:border-box;
+}
+
+html {
+  scroll-behavior:smooth;
+}
+
+body {
+  margin:0;
+  color:var(--text);
+  background:
+    radial-gradient(circle at top right,#dbeafe 0,transparent 30%),
+    var(--bg);
+  font-family:
+    -apple-system,BlinkMacSystemFont,"Segoe UI",
+    "Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  line-height:1.7;
+  -webkit-tap-highlight-color:transparent;
+}
+
+button,input {
+  font:inherit;
+}
+
+button {
+  touch-action:manipulation;
+}
+
+.app {
+  width:min(100%,850px);
+  min-height:100vh;
+  margin:0 auto;
+}
+
+header {
+  position:sticky;
+  top:0;
+  z-index:20;
+  color:#fff;
+  background:linear-gradient(135deg,#1d4ed8,#2563eb);
+  box-shadow:0 4px 16px rgba(30,64,175,.25);
+}
+
+.header-inner {
+  padding:max(12px,env(safe-area-inset-top)) 16px 12px;
+}
+
+.header-title {
+  margin:0;
+  font-size:clamp(17px,4.8vw,24px);
+  line-height:1.35;
+}
+
+.header-sub {
+  margin-top:3px;
+  font-size:12px;
+  opacity:.88;
+}
+
+.progress-info {
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:10px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.progress-track {
+  height:8px;
+  margin-top:5px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(255,255,255,.25);
+}
+
+.progress-bar {
+  width:0;
+  height:100%;
+  border-radius:inherit;
+  background:#facc15;
+  transition:width .25s;
+}
+
+main {
+  padding:16px 12px 130px;
+}
+
+.start-card,
+.question-card,
+.result-card,
+.review-card {
+  overflow:hidden;
+  border:1px solid rgba(203,213,225,.9);
+  border-radius:20px;
+  background:var(--card);
+  box-shadow:var(--shadow);
+}
+
+.start-card,
+.result-card {
+  padding:24px 18px;
+}
+
+.start-card h2,
+.result-card h2 {
+  margin-top:0;
+}
+
+.start-list {
+  padding-left:1.35em;
+}
+
+.notice {
+  margin:16px 0;
+  padding:12px 14px;
+  border-left:5px solid var(--warning);
+  border-radius:10px;
+  color:#78350f;
+  background:var(--warning-bg);
+  font-size:14px;
+}
+
+.question-top {
+  padding:14px 16px;
+  color:#fff;
+  background:linear-gradient(135deg,#334155,#475569);
+}
+
+.category {
+  font-size:12px;
+  opacity:.9;
+}
+
+.question-number {
+  margin-top:2px;
+  font-size:20px;
+  font-weight:800;
+}
+
+.question-body {
+  padding:18px 15px 20px;
+}
+
+.question-text {
+  margin:0 0 15px;
+  font-weight:700;
+  white-space:pre-wrap;
+}
+
+.shared-description {
+  margin:0 0 14px;
+  padding:12px;
+  border:1px solid #bfdbfe;
+  border-radius:12px;
+  background:#eff6ff;
+  font-size:14px;
+  white-space:pre-wrap;
+}
+
+.code {
+  margin:14px 0;
+  padding:14px;
+  overflow-x:auto;
+  border:1px solid #334155;
+  border-radius:12px;
+  color:#e2e8f0;
+  background:#0f172a;
+  font:14px/1.65 Consolas,Monaco,monospace;
+  white-space:pre;
+  -webkit-overflow-scrolling:touch;
+}
+
+.options {
+  display:grid;
+  gap:10px;
+}
+
+.option {
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  width:100%;
+  min-height:54px;
+  padding:12px;
+  border:2px solid var(--border);
+  border-radius:14px;
+  color:var(--text);
+  background:#fff;
+  text-align:left;
+  cursor:pointer;
+}
+
+.option:active {
+  transform:scale(.99);
+}
+
+.option.selected {
+  border-color:var(--primary);
+  background:var(--primary-light);
+}
+
+.option.correct {
+  border-color:var(--correct);
+  background:var(--correct-bg);
+}
+
+.option.wrong {
+  border-color:var(--wrong);
+  background:var(--wrong-bg);
+}
+
+.option-mark {
+  flex:0 0 31px;
+  display:grid;
+  place-items:center;
+  width:31px;
+  height:31px;
+  border-radius:50%;
+  color:#fff;
+  background:#64748b;
+  font-weight:800;
+  line-height:1;
+}
+
+.option.selected .option-mark {
+  background:var(--primary);
+}
+
+.option.correct .option-mark {
+  background:var(--correct);
+}
+
+.option.wrong .option-mark {
+  background:var(--wrong);
+}
+
+.option-text {
+  flex:1;
+  padding-top:1px;
+  white-space:pre-wrap;
+}
+
+.answer-inputs {
+  display:grid;
+  gap:12px;
+}
+
+.input-row label {
+  display:block;
+  margin-bottom:5px;
+  font-weight:700;
+}
+
+.text-answer {
+  width:100%;
+  min-height:50px;
+  padding:11px 13px;
+  border:2px solid var(--border);
+  border-radius:12px;
+  outline:none;
+  background:#fff;
+}
+
+.text-answer:focus {
+  border-color:var(--primary);
+  box-shadow:0 0 0 4px rgba(37,99,235,.12);
+}
+
+.text-answer.correct-input {
+  border-color:var(--correct);
+  background:var(--correct-bg);
+}
+
+.text-answer.wrong-input {
+  border-color:var(--wrong);
+  background:var(--wrong-bg);
+}
+
+.multi-hint {
+  margin-bottom:10px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.feedback {
+  display:none;
+  margin-top:16px;
+  padding:13px;
+  border-radius:12px;
+  font-weight:700;
+}
+
+.feedback.show {
+  display:block;
+}
+
+.feedback.correct-feedback {
+  color:#14532d;
+  background:var(--correct-bg);
+  border:1px solid #86efac;
+}
+
+.feedback.wrong-feedback {
+  color:#7f1d1d;
+  background:var(--wrong-bg);
+  border:1px solid #fca5a5;
+}
+
+.explanation {
+  display:none;
+  margin-top:12px;
+  padding:13px;
+  border-left:5px solid var(--primary);
+  border-radius:10px;
+  background:#eff6ff;
+  font-size:14px;
+}
+
+.explanation.show {
+  display:block;
+}
+
+.answer-display {
+  margin-top:7px;
+  font-family:Consolas,monospace;
+  font-weight:800;
+}
+
+.bottom-controls {
+  position:fixed;
+  right:0;
+  bottom:0;
+  left:0;
+  z-index:30;
+  padding:10px 12px max(10px,env(safe-area-inset-bottom));
+  border-top:1px solid rgba(203,213,225,.9);
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(14px);
+}
+
+.control-inner {
+  display:grid;
+  grid-template-columns:1fr 1.3fr 1fr;
+  gap:8px;
+  width:min(100%,826px);
+  margin:0 auto;
+}
+
+.btn {
+  min-height:48px;
+  padding:9px 8px;
+  border:0;
+  border-radius:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.btn:disabled {
+  cursor:not-allowed;
+  opacity:.55;
+}
+
+.btn-primary {
+  color:#fff;
+  background:var(--primary);
+}
+
+.btn-secondary {
+  color:#1e293b;
+  background:#e2e8f0;
+}
+
+.btn-danger {
+  color:#fff;
+  background:#dc2626;
+}
+
+.btn-success {
+  color:#fff;
+  background:var(--correct);
+}
+
+.start-button {
+  width:100%;
+  min-height:56px;
+  font-size:17px;
+}
+
+.result-score {
+  display:grid;
+  place-items:center;
+  width:150px;
+  height:150px;
+  margin:20px auto;
+  border:12px solid var(--primary-light);
+  border-radius:50%;
+  color:var(--primary-dark);
+  font-size:29px;
+  font-weight:900;
+}
+
+.result-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin:18px 0;
+}
+
+.result-stat {
+  padding:12px 6px;
+  border-radius:12px;
+  background:#f8fafc;
+  text-align:center;
+}
+
+.result-stat strong {
+  display:block;
+  font-size:20px;
+}
+
+.result-actions {
+  display:grid;
+  gap:10px;
+}
+
+.review-list {
+  display:grid;
+  gap:12px;
+  margin-top:16px;
+}
+
+.review-item {
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:#fff;
+}
+
+.review-item.correct-review {
+  border-left:6px solid var(--correct);
+}
+
+.review-item.wrong-review {
+  border-left:6px solid var(--wrong);
+}
+
+.review-item h3 {
+  margin:0 0 8px;
+  font-size:16px;
+}
+
+.review-question {
+  white-space:pre-wrap;
+  font-size:14px;
+}
+
+.review-answer {
+  margin-top:8px;
+  font-size:14px;
+}
+
+.hidden {
+  display:none !important;
+}
+
+.jump-grid {
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:7px;
+  margin-top:18px;
+}
+
+.jump-button {
+  aspect-ratio:1;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fff;
+  font-weight:800;
+}
+
+.jump-button.answered {
+  color:#fff;
+  border-color:var(--primary);
+  background:var(--primary);
+}
+
+.jump-button.current {
+  outline:3px solid #facc15;
+}
+
+@media (min-width:650px) {
+  main {
+    padding:24px 18px 130px;
+  }
+
+  .question-body {
+    padding:24px;
+  }
+
+  .jump-grid {
+    grid-template-columns:repeat(10,1fr);
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <header>
+    <div class="header-inner">
+      <h1 class="header-title">Pythonプログラミング実習②－2</h1>
+      <div class="header-sub">定期考査・全30問／Python 3系</div>
+
+      <div id="headerProgress" class="hidden">
+        <div class="progress-info">
+          <span id="progressText">問1 / 30</span>
+          <span id="answeredText">回答済み 0問</span>
+        </div>
+
+        <div class="progress-track">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section id="startScreen" class="start-card">
+      <h2>定期考査クイズ</h2>
+
+      <p>
+        テスト用紙の問題文をもとに作成した、スマートフォン対応のクイズです。
+      </p>
+
+      <ul class="start-list">
+        <li>全30問</li>
+        <li>選択式・複数選択式・記述式</li>
+        <li>各問題ごとに採点可能</li>
+        <li>分からない場合は未回答でも答えを表示可能</li>
+        <li>回答内容は端末内に自動保存</li>
+        <li>最後に正答数と復習一覧を表示</li>
+      </ul>
+
+      <div class="notice">
+        分からない問題は、何も入力せずに
+        <strong>「採点／答えを見る」</strong>
+        を押してください。正答と解説が表示されます。
+      </div>
+
+      <button id="startBtn" class="btn btn-primary start-button">
+        クイズを開始する
+      </button>
+
+      <button
+        id="resumeBtn"
+        class="btn btn-secondary start-button hidden"
+        style="margin-top:10px"
+      >
+        保存した続きから再開する
+      </button>
+    </section>
+
+    <section id="quizScreen" class="hidden">
+      <article class="question-card">
+
+        <div class="question-top">
+          <div id="category" class="category"></div>
+          <div id="questionNumber" class="question-number"></div>
+        </div>
+
+        <div class="question-body">
+          <div id="sharedDescription" class="shared-description hidden"></div>
+          <div id="questionText" class="question-text"></div>
+          <div id="questionCode"></div>
+          <div id="answerArea"></div>
+          <div id="feedback" class="feedback"></div>
+          <div id="explanation" class="explanation"></div>
+        </div>
+
+      </article>
+
+      <div id="jumpGrid" class="jump-grid"></div>
+    </section>
+
+    <section id="resultScreen" class="result-card hidden">
+      <h2>採点結果</h2>
+
+      <div id="resultScore" class="result-score">0 / 30</div>
+
+      <div class="result-grid">
+        <div class="result-stat">
+          <strong id="correctCount">0</strong>
+          正解
+        </div>
+
+        <div class="result-stat">
+          <strong id="wrongCount">0</strong>
+          不正解・未回答
+        </div>
+
+        <div class="result-stat">
+          <strong id="percentCount">0%</strong>
+          正答率
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button id="reviewBtn" class="btn btn-primary">
+          回答を復習する
+        </button>
+
+        <button id="retryWrongBtn" class="btn btn-success">
+          不正解だけ再挑戦
+        </button>
+
+        <button id="resetBtn" class="btn btn-danger">
+          最初からやり直す
+        </button>
+      </div>
+    </section>
+
+    <section
+      id="reviewScreen"
+      class="review-card hidden"
+      style="padding:18px"
+    >
+      <h2 style="margin-top:0">回答の復習</h2>
+
+      <div id="reviewList" class="review-list"></div>
+
+      <button
+        id="backResultBtn"
+        class="btn btn-primary"
+        style="width:100%;margin-top:16px"
+      >
+        採点結果に戻る
+      </button>
+    </section>
+
+  </main>
+</div>
+
+<div id="bottomControls" class="bottom-controls hidden">
+  <div class="control-inner">
+    <button id="prevBtn" class="btn btn-secondary">← 前へ</button>
+    <button id="checkBtn" class="btn btn-primary">採点／答えを見る</button>
+    <button id="nextBtn" class="btn btn-secondary">次へ →</button>
+  </div>
+</div>
+
+<script>
+const commonFileCode = `row = 10
+
+file = ①("kingball1.txt", mode = ②, encoding = "utf-8")
+
+line = 0
+
+for line in file:    # ③ ファイルを読み込む
+    list = line.split()
+    line = line + 1
+
+    for i in range(row):
+        if list[i] == "王":
+            print(line, "行目の", i + 1, "列目に王がいます。")
+
+file.④()`;
+
+const questions = [
+  {
+    number:1,
+    category:"問題06　ファイル処理",
+    type:"fill",
+    question:"問01．ファイル操作の作法に基づいて、上記のコードの空欄①、④に当てはまる関数名およびメソッド名を記述しなさい（完答）。",
+    description:"10×10（10行10列）の升目の中に1文字だけ「王」が存在するテキストファイルから、「王」が何行目の何列目にあるかを求めるプログラム。",
+    code:commonFileCode,
+    labels:["空欄①","空欄④"],
+    answers:[["open"],["close"]],
+    displayAnswer:"① open　④ close",
+    explanation:"ファイルはopen関数で開き、処理後はcloseメソッドで閉じます。"
+  },
+  {
+    number:2,
+    category:"問題06　ファイル処理",
+    type:"fill",
+    question:"問02．上記のコードの空欄②に関して、mode引数に渡す「書き込みモードで開く」ときの設定値を解答欄Aに、またその引数を省略した時のデフォルト値を解答欄Bにそれぞれ記述しなさい（完答）。",
+    code:commonFileCode,
+    labels:["解答欄A","解答欄B"],
+    answers:[
+      ["w","'w'","\"w\""],
+      ["r","'r'","\"r\""]
+    ],
+    displayAnswer:"A：\"w\"　B：\"r\"",
+    explanation:"書き込みモードはw、modeを省略した場合のデフォルトは読み込みモードのrです。"
+  },
+  {
+    number:3,
+    category:"問題06　ファイル処理",
+    type:"fill",
+    question:"問03．Pythonのファイル操作で例外処理を記述しなくても、自動的にファイルを閉じる処理を行う構文の名称を記述しなさい。",
+    labels:["構文の名称"],
+    answers:[["with","with構文","with文"]],
+    displayAnswer:"with構文",
+    explanation:"with構文を使用すると、処理終了時にファイルが自動的に閉じられます。"
+  },
+  {
+    number:4,
+    category:"問題06　ファイル処理",
+    type:"single",
+    question:"問04．前頁のコードのコメント文③に関する考え方について、最適な記述をア～オの中から答えなさい。",
+    options:[
+      "ファイルから一度にすべての内容を読み込むと、巨大なファイルでも短時間で処理ができるので、CPUへの負担が軽減される。",
+      "ファイルから1行ずつ読み込むと、巨大なファイルでも少しずつ処理ができるので、エラーになりにくい。",
+      "巨大なファイルはどのような方法を用いて読み込んでも確実にエラーになることはない。",
+      "巨大なファイルはどのような方法を用いても最後の行まで読み込むことは不可能である。",
+      "巨大なファイルは事前に分割処理をし、小さなファイルサイズにしてから読み込むようにするとエラーになりにくい。"
+    ],
+    marks:["ア","イ","ウ","エ","オ"],
+    answer:1,
+    displayAnswer:"イ",
+    explanation:"1行ずつ処理することで、ファイル全体を一度にメモリへ読み込まずに済みます。"
+  },
+  {
+    number:5,
+    category:"問題06　ファイル処理",
+    type:"fill",
+    question:"問05．JavaScriptのオブジェクトの定義が基本形にした、複雑なデータを保存するためのテキストファイルの形式の名称を記述しなさい。",
+    labels:["形式の名称"],
+    answers:[["json"]],
+    displayAnswer:"JSON",
+    explanation:"JSONはJavaScript Object Notationの略です。"
+  },
+  {
+    number:6,
+    category:"問題07　モジュールおよびパッケージ",
+    type:"single",
+    question:"問06．Pythonのモジュールおよびパッケージについて、最適な記述をア～オの中から答えなさい。",
+    options:[
+      "モジュールの呼び出しには、from文を使用する。",
+      "モジュールを呼び出す際には、拡張子「.py」を省略する。",
+      "パッケージを指定するためには、import文を使用する。",
+      "同じディレクトリ内にある別のスクリプトをモジュールとして使用する場合は、import文の記述は不要である。",
+      "モジュールのパスの指定は、絶対パスでも問題ない。"
+    ],
+    marks:["ア","イ","ウ","エ","オ"],
+    answer:1,
+    displayAnswer:"イ",
+    explanation:"import時には通常、ファイル名の拡張子.pyを付けません。"
+  },
+  {
+    number:7,
+    category:"問題07　モジュールおよびパッケージ",
+    type:"fill",
+    question:"問07．下記は、importしたモジュールから関数を使用するコードの例である。空欄①に当てはまるコードを記述しなさい。",
+    code:`# スクリプトファイル名：sub.py
+def add(a, b):
+    return a + b
+
+# スクリプトファイル名：main.py
+import sub
+x = ① add(3, 4)
+print(x)`,
+    labels:["空欄①"],
+    answers:[["sub.","sub"]],
+    displayAnswer:"sub.",
+    explanation:"import subで読み込んだ要素は、sub.addのように「モジュール名.要素名」で参照します。"
+  },
+  {
+    number:8,
+    category:"問題07　モジュールおよびパッケージ",
+    type:"fill",
+    question:"問08．下記は、importしたモジュールから関数を使用するコードの例である。空欄①に当てはまるコードを記述しなさい。",
+    code:`# スクリプトファイル名：sub.py
+def add(a, b):
+    return a + b
+
+# スクリプトファイル名：main.py
+import sub
+s = ①
+x = s(3, 4)
+print(x)`,
+    labels:["空欄①"],
+    answers:[["sub.add"]],
+    displayAnswer:"sub.add",
+    explanation:"関数オブジェクトsub.addを変数sへ代入しています。"
+  },
+  {
+    number:9,
+    category:"問題07　モジュールおよびパッケージ",
+    type:"single",
+    question:"問09．下記のコードについて、最適な記述をア～エの中から答えなさい。",
+    code:`from A import B as C
+
+C.X()
+
+print(C.Y)`,
+    options:[
+      "モジュールAはパッケージBに属している。",
+      "CはモジュールBの代替名であり、コード内ではBと同じ意味をもつ。",
+      "XはAのメソッドである。",
+      "YはCの変数である。"
+    ],
+    marks:["ア","イ","ウ","エ"],
+    answer:1,
+    displayAnswer:"イ",
+    explanation:"as Cによって、AからimportしたBをCという別名で参照します。"
+  },
+  {
+    number:10,
+    category:"問題07　モジュールおよびパッケージ",
+    type:"fill",
+    question:"問10．Pythonのパッケージ管理ツールの名称を記述しなさい。",
+    labels:["名称"],
+    answers:[["pip"]],
+    displayAnswer:"pip",
+    explanation:"pipはPythonパッケージのインストールや管理に使われます。"
+  },
+  {
+    number:11,
+    category:"問題08　クラスを定義し、使用する",
+    type:"multi",
+    question:"問11．Pythonのクラス定義について、不適切な記述をア～クの中から3つ答えなさい（完答）。",
+    options:[
+      "クラスは必ず「変数」と「メソッド」を定義しなければならない。",
+      "クラス内のメソッドには、戻り値や引数を指定することもできる。",
+      "クラスのメンバーには定義した変数、メソッドの他に初期化メソッドがある。",
+      "初期化メソッドは第一引数を指定しなければならず、引数名にはselfを指定しなければならない。",
+      "初期化メソッドの第一引数を介してインスタンス変数を定義することができ、他のメソッドと共有することができる。",
+      "クラス内における変数は、インスタンス変数またはクラス変数に分類することができる。",
+      "インスタンス変数はインスタンスを生成して初めてアクセスが可能になる。",
+      "インスタンスメソッドからクラス変数へアクセスは不可能である。"
+    ],
+    marks:["ア","イ","ウ","エ","オ","カ","キ","ク"],
+    answers:[0,3,7],
+    displayAnswer:"ア、エ、ク",
+    explanation:"クラスは変数だけ・メソッドだけでも定義できます。第一引数の名前は慣例的にselfですが必須名ではありません。また、インスタンスメソッドからクラス変数へアクセスできます。"
+  },
+  {
+    number:12,
+    category:"問題08　クラスを定義し、使用する",
+    type:"fill",
+    question:"問12．下記のHumanクラスから、変数hにオブジェクトを生成するコードを記述しなさい。",
+    code:`class Human:
+    pass`,
+    labels:["コード"],
+    answers:[["h=human()","h = human()"]],
+    displayAnswer:"h = Human()",
+    explanation:"Pythonではnew演算子を使わず、クラス名()でインスタンスを生成します。"
+  },
+  {
+    number:13,
+    category:"問題08　クラスを定義し、使用する",
+    type:"single",
+    question:"問13．Pythonのクラスで静的メソッドを定義する場合について、最適な記述をア～カの中から答えなさい。",
+    options:[
+      "メソッド名の先頭に、_（アンダースコア）を1つ記述する。",
+      "メソッド名の先頭に、_（アンダースコア）クラス名_（アンダースコア）を記述する。",
+      "メソッド名の先頭に、_（アンダースコア）を2つ記述する。",
+      "メソッド名の先頭に、@を付記する。",
+      "メソッド宣言の前に、@staticというデコレータを記述する。",
+      "メソッド宣言の前に、@staticmethodというデコレータを記述する。"
+    ],
+    marks:["ア","イ","ウ","エ","オ","カ"],
+    answer:5,
+    displayAnswer:"カ",
+    explanation:"静的メソッドは@staticmethodデコレータを付けて定義します。"
+  },
+  {
+    number:14,
+    category:"問題08　クラスを定義し、使用する",
+    type:"single",
+    question:"問14．次のプログラムの実行結果をア～オの中から答えなさい。",
+    code:`class Human:
+    name
+
+    def __init__(self, name):
+        self.name = name
+
+h = Human("とびあ")
+print(h.name)`,
+    options:[
+      "「とびあ」と表示される。",
+      "「name」と表示される。",
+      "「None」と表示される。",
+      "なにも表示されない。",
+      "エラーが発生する。"
+    ],
+    marks:["ア","イ","ウ","エ","オ"],
+    answer:4,
+    displayAnswer:"オ",
+    explanation:"クラス本体にnameだけを記述すると、未定義名nameを評価するためエラーになります。"
+  },
+  {
+    number:15,
+    category:"問題08　クラスを定義し、使用する",
+    type:"single",
+    question:"問15．次のプログラムの実行結果をア～オの中から答えなさい。",
+    code:`class Cat:
+    type = "猫"
+
+    def __init__(self, name):
+        self.name = name
+
+    def getName(self):
+        return self.name
+
+cat1 = Cat("タロウ")
+Cat.type = "子猫"
+cat2 = Cat("ジロウ")
+
+print(cat1.type + "の" + cat1.getName())
+print(cat2.type + "の" + cat2.getName())`,
+    options:[
+      "「猫のタロウ」、「猫のジロウ」の2行が表示される。",
+      "「子猫のタロウ」、「猫のジロウ」の2行が表示される。",
+      "「猫のタロウ」、「子猫のジロウ」の2行が表示される。",
+      "「子猫のタロウ」、「子猫のジロウ」の2行が表示される。",
+      "エラーが発生する。"
+    ],
+    marks:["ア","イ","ウ","エ","オ"],
+    answer:3,
+    displayAnswer:"エ",
+    explanation:"typeはクラス変数です。Cat.typeを子猫へ変更すると、cat1とcat2の両方から変更後の値が参照されます。"
+  },
+  {
+    number:16,
+    category:"問題09　継承",
+    type:"single",
+    question:"問16．Pythonの継承について、最適な記述をア～オの中から答えなさい。",
+    options:[
+      "基底クラスからは派生クラスを1つしか作成できない。",
+      "2つ以上基底クラスを継承した派生クラスは作成できない。",
+      "派生クラスは基底クラスで定義した変数、メソッドを全て継承して利用することができる。",
+      "派生クラス内で基底クラスと同じ定義のメソッドを記述することはできない。",
+      "抽象基底クラスを継承した派生クラスは、抽象メソッドをオーバーロードしなくて良い。"
+    ],
+    marks:["ア","イ","ウ","エ","オ"],
+    answer:2,
+    displayAnswer:"ウ",
+    explanation:"派生クラスは基底クラスの属性やメソッドを継承して利用できます。"
+  },
+  {
+    number:17,
+    category:"問題09　継承",
+    type:"fill",
+    question:"問17．右記は、Bookクラスを継承してMagazineクラスを定義するコードの例である。空欄①に当てはまるコードを記述しなさい。",
+    code:`class Book:
+    pass
+
+class Magazine ①:
+    pass
+
+m = Magazine()`,
+    labels:["空欄①"],
+    answers:[["(book)"]],
+    displayAnswer:"(Book)",
+    explanation:"継承元のクラスは、派生クラス名の後ろの丸括弧内に指定します。"
+  },
+  {
+    number:18,
+    category:"問題09　継承",
+    type:"fill",
+    question:"問18．下記は、Carクラスを継承してBusクラスを定義するコードの例である。空欄ア～ウに当てはまるコードを記述しなさい（完答）。",
+    code:`class Car:
+    def __init__(self, count):
+        self.car_type = "normal"
+        self.count = count
+
+    def show_status(self):
+        print("Car Type：", self.car_type)
+
+
+class Bus ア:
+    def __init__(self, count):
+        イ.__init__(count)
+        self.car_type = "Bus"
+
+
+bus = Bus(30)
+print("種類：" + ウ.car_type,
+      "搭乗人数：" + str(ウ.count))`,
+    labels:["空欄ア","空欄イ","空欄ウ"],
+    answers:[
+      ["(car)"],
+      ["super()","super"],
+      ["bus"]
+    ],
+    displayAnswer:"ア：(Car)　イ：super()　ウ：bus",
+    explanation:"BusはCarを継承し、super().__init__(count)で基底クラスの初期化処理を呼び出します。"
+  },
+  {
+    number:19,
+    category:"問題09　継承",
+    type:"fill",
+    question:"問19．下記のプログラムの実行結果として、空欄①～④に当てはまる文字を記述しなさい（完答）。",
+    code:`# SampleAの定義
+class SampleA:
+    def __init__(self, a):
+        print("SampleA：", a)
+
+
+# SampleBの定義
+class SampleB(SampleA):
+    def __init__(self, a, b):
+        super().__init__(a)
+        print("SampleB：", b)
+
+
+# 実行コード
+SampleB("a1", "b1")
+
+
+# 実行結果
+Sample ① ： ②
+Sample ③ ： ④`,
+    labels:["空欄①","空欄②","空欄③","空欄④"],
+    answers:[
+      ["a"],
+      ["a1"],
+      ["b"],
+      ["b1"]
+    ],
+    displayAnswer:"① A　② a1　③ B　④ b1",
+    explanation:"最初にSampleAの初期化処理が呼ばれ、続いてSampleBの処理が実行されます。"
+  },
+  {
+    number:20,
+    category:"問題09　継承",
+    type:"multi",
+    question:"問20．Pythonの多重継承について、適切な記述をア～オの中から2つ答えなさい（完答）。",
+    options:[
+      "複数のクラスを基底クラスに指定する継承を「多重継承」という。多重継承は不便な機能だが、メリットのほうが大きく、問題が発生する可能性は低いため、初心者でも気軽に利用できる。",
+      "複数のクラスを基底クラスに指定する継承を「多重継承」という。多重継承は大変便利な機能だが、必ず問題が発生するので、すべてのプログラミング言語で禁止されている。",
+      "複数のクラスを基底クラスに指定する継承を「多重継承」という。多重継承は便利だが、複雑な問題が発生する可能性もあるので、禁止しているプログラミング言語もある。Pythonは多重継承をサポートしている。",
+      "多重継承した派生クラスを、さらに多重継承することができ、複雑な構成になるため、クラスの優先順位を考える必要がある。",
+      "多重継承した派生クラスを、さらに多重継承することができ、複雑な構成になるが、クラスの優先順位は自動的に処理されるため、とくに気にする必要はない。"
+    ],
+    marks:["ア","イ","ウ","エ","オ"],
+    answers:[2,3],
+    displayAnswer:"ウ、エ",
+    explanation:"Pythonは多重継承をサポートしています。同名メソッドがある場合は優先順位を考える必要があります。"
+  },
+  {
+    number:21,
+    category:"問題10　多態性（ポリモーフィズム）",
+    type:"single",
+    question:"問21．抽象基底クラスの定義について、最適な記述をア～オの中から答えなさい。",
+    options:[
+      "抽象基底クラスとは、クラス定義の内容を空にしたクラスである。",
+      "抽象基底クラスとは、クラス変数を定義したクラスである。",
+      "抽象基底クラスとは、空のメソッドを定義したクラスである。",
+      "抽象基底クラスとは、処理内容を実装したメソッドのみ定義したクラスである。",
+      "抽象基底クラスとは、初期化メソッドのみ定義したクラスである。"
+    ],
+    marks:["ア","イ","ウ","エ","オ"],
+    answer:2,
+    displayAnswer:"ウ",
+    explanation:"派生クラスで実装させるための空の抽象メソッドを定義するクラスを指しています。"
+  },
+  {
+    number:22,
+    category:"問題10　多態性（ポリモーフィズム）",
+    type:"single",
+    question:"問22．抽象基底クラスのメソッドの取り扱いについて、最適な記述をア～オの中から答えなさい。",
+    options:[
+      "抽象基底クラスで定義したすべてのメソッドは継承したクラスでオーバーライドする必要があり、任意のメソッドをもたせる役割がある。",
+      "抽象基底クラスで定義したすべてのメソッドは継承したクラスでオーバーライドしなくても、とくにエラーが出ることなく使用できる。",
+      "抽象基底クラスで定義した空のメソッドは継承したクラスでオーバーライドする必要があり、任意のメソッドをもたせる役割がある。",
+      "抽象基底クラスで定義した空のメソッドは継承したクラスでオーバーライドしなくても、とくにエラーが出ることなく使用できる。",
+      "抽象基底クラスで定義したメソッドは継承しなくてもインスタンス化することで使用できる。"
+    ],
+    marks:["ア","イ","ウ","エ","オ"],
+    answer:2,
+    displayAnswer:"ウ",
+    explanation:"抽象メソッドは、具体的な派生クラス側でオーバーライドして実装する必要があります。"
+  },
+  {
+    number:23,
+    category:"問題10　多態性（ポリモーフィズム）",
+    type:"fill",
+    question:"問23．下記は、抽象基底クラスItemを定義するコードの例である。空欄ア～ウに当てはまるコードを記述しなさい（完答）。",
+    code:`# スクリプトファイル名：item.py
+from ア import ABCMeta, abstractmethod
+
+class Item(metaclass = ABCMeta):
+    イ
+    def init_item(self):
+        pass
+
+    イ
+    def getName(self):
+        pass
+
+
+# スクリプトファイル名：product.py
+from ウ import Item
+
+class Product(Item):
+    def init_item(self):
+        print("商品を初期化します")
+
+    def getName(self):
+        print("商品名を表示します")
+
+pro = Product()
+pro.init_item()
+pro.getName()`,
+    labels:["空欄ア","空欄イ","空欄ウ"],
+    answers:[
+      ["abc"],
+      ["@abstractmethod","abstractmethod"],
+      ["item"]
+    ],
+    displayAnswer:"ア：abc　イ：@abstractmethod　ウ：item",
+    explanation:"ABCMetaとabstractmethodはabcモジュールから読み込みます。product.pyからはitemモジュールのItemを読み込みます。"
+  },
+  {
+    number:24,
+    category:"問題10　多態性（ポリモーフィズム）",
+    type:"single",
+    question:"問24．ダックタイピングについて、最適な記述をア～ウの中から答えなさい。",
+    options:[
+      "ダックタイピングは、例えばCatクラスとDogクラスのように互いのクラスに関連性があり、かつ同じメソッドをもっていれば、同様に処理することができる機能である。",
+      "ダックタイピングは、例えばCatクラスとCarクラスのように互いのクラスに関連性がなくても、同じメソッドをもっていれば、同様に処理することができる機能である。",
+      "ダックタイピングは、例えばCatクラスとCarクラスのように互いのクラスに関連性がなければ、同じメソッドをもっていても、同様に処理することはできない機能である。"
+    ],
+    marks:["ア","イ","ウ"],
+    answer:1,
+    displayAnswer:"イ",
+    explanation:"ダックタイピングでは、型や継承関係よりも、必要なメソッドや属性を持っているかを重視します。"
+  },
+  {
+    number:25,
+    category:"問題10　多態性（ポリモーフィズム）",
+    type:"single",
+    question:"問25．Pythonの抽象基底クラスとダックタイピングについて、最適な記述をア～ウの中から答えなさい。",
+    options:[
+      "「ダックタイピング」は継承により派生クラスでポリモーフィズムを実現するための機能であり、「抽象基底クラス」は継承を使わなくても同じメソッドをもっていれば同様に処理することができる機能である。",
+      "「抽象基底クラス」は継承により派生クラスでポリモーフィズムを実現するための機能であり、「ダックタイピング」は継承を使わなくても同じメソッドをもっていれば同様に処理することができる機能である。",
+      "「抽象基底クラス」は継承により派生クラスでメソッド定義を強制させるための機能であり、「ダックタイピング」は同じメソッドをもたせることを強制させたうえで、同様に処理することができる機能である。"
+    ],
+    marks:["ア","イ","ウ"],
+    answer:1,
+    displayAnswer:"イ",
+    explanation:"抽象基底クラスは継承先へ抽象メソッドの実装を求めます。ダックタイピングは継承関係を必須としません。"
+  },
+  {
+    number:26,
+    category:"問題11　カプセル化",
+    type:"single",
+    question:"問26．Pythonのクラス要素の隠蔽処理について、最適な記述をア～オの中から答えなさい。",
+    options:[
+      "Pythonでは、完全な隠蔽処理はサポートされている。",
+      "Pythonでは、隠蔽処理はサポートされているが、隠蔽処理は極力使用しないという暗黙のルールがある。",
+      "Pythonでは、完全な隠蔽処理はサポートされていない。",
+      "Pythonでは、隠蔽処理はサポートされていないが、暗黙のルールによって、隠蔽処理は完全に実現できている。",
+      "Pythonでは、隠蔽処理はサポートされていないが、ルールが明文化されており、隠蔽処理は完全に実現できている。"
+    ],
+    marks:["ア","イ","ウ","エ","オ"],
+    answer:2,
+    displayAnswer:"ウ",
+    explanation:"Pythonには、他言語のprivateのような完全なアクセス禁止機構はありません。"
+  },
+  {
+    number:27,
+    category:"問題11　カプセル化",
+    type:"single",
+    question:"問27．Pythonの非公開メンバーについて、最適な記述をア～エの中から答えなさい。",
+    options:[
+      "メソッド名や変数名がアンダースコア（_）から始まっていれば、そのメンバーは非公開であり、クラスの利用者は手を出さないという絶対的なルールがある。",
+      "メソッド名や変数名がアンダースコア（_）から始まっていれば、そのメンバーは非公開であり、クラスの利用者は手を出さないという暗黙のルールがある。",
+      "メソッド名や変数名がアスタリスク（*）から始まっていれば、そのメンバーは非公開であり、クラスの利用者は手を出さないという絶対的なルールがある。",
+      "メソッド名や変数名がアスタリスク（*）から始まっていれば、そのメンバーは非公開であり、クラスの利用者は手を出さないという暗黙のルールがある。"
+    ],
+    marks:["ア","イ","ウ","エ"],
+    answer:1,
+    displayAnswer:"イ",
+    explanation:"先頭が_の名前は内部利用を意図する、という慣習です。絶対的なアクセス禁止ではありません。"
+  },
+  {
+    number:28,
+    category:"問題11　カプセル化",
+    type:"single",
+    question:"問28．Pythonのマングリング機能について、最適な記述をア～エの中から答えなさい。",
+    options:[
+      "クラス利用者へ要素名を公開するためにある機能で、メンバー名の前に「問27の解答」の記号を2つ記述する。",
+      "クラス利用者に要素を利用させるようにするための機能で、メンバー名の前に「問27の解答」の記号を2つ記述する。",
+      "クラス利用者に要素を利用させないようにするための機能で、メンバー名の前に「問27の解答」の記号を2つ記述する。",
+      "クラス利用者がクラスから要素を取り出すためにある機能で、メンバー名の前に「問27の解答」の記号を2つ記述する。"
+    ],
+    marks:["ア","イ","ウ","エ"],
+    answer:2,
+    displayAnswer:"ウ",
+    explanation:"先頭にアンダースコアを2つ付けると名前マングリングが行われ、外部から直接扱いにくくなります。"
+  },
+  {
+    number:29,
+    category:"問題11　カプセル化",
+    type:"fill",
+    question:"問29．右記は、Clockクラスの「_hour」という変数に対して、セッターとゲッターを用意したコードの例である。空欄ア～ウに当てはまるコードを記述しなさい（完答）。",
+    code:`# スクリプトファイル名：getter_test.py
+class Clock:
+    def __init__(self, hour):
+        self.ア = hour
+
+    イ
+    def hour(self):
+        return self._hour
+
+    ウ
+    def hour(self, value):
+        self._hour = value`,
+    labels:["空欄ア","空欄イ","空欄ウ"],
+    answers:[
+      ["_hour"],
+      ["@property","property"],
+      ["@hour.setter","hour.setter"]
+    ],
+    displayAnswer:"ア：_hour　イ：@property　ウ：@hour.setter",
+    explanation:"@propertyでゲッターを定義し、@hour.setterで同名プロパティのセッターを定義します。"
+  },
+  {
+    number:30,
+    category:"問題11　カプセル化",
+    type:"fill",
+    question:"問30．右記は、問29のClockクラスの「_hour」を表示するコードの例である。空欄①に当てはまるコードを記述しなさい。",
+    code:`import getter_test
+
+a = getter_test.Clock(10)
+
+print(①)`,
+    labels:["空欄①"],
+    answers:[["a.hour"]],
+    displayAnswer:"a.hour",
+    explanation:"propertyを利用しているため、外部からは属性のようにa.hourでアクセスします。"
+  }
+];
+
+const STORAGE_KEY = "python_exam_quiz_2306_01_v2";
+
+let currentIndex = 0;
+let activeQuestionIndexes = questions.map((_,index) => index);
+let userAnswers = {};
+let checkedAnswers = {};
+let quizStarted = false;
+
+const startScreen = document.getElementById("startScreen");
+const quizScreen = document.getElementById("quizScreen");
+const resultScreen = document.getElementById("resultScreen");
+const reviewScreen = document.getElementById("reviewScreen");
+const bottomControls = document.getElementById("bottomControls");
+const headerProgress = document.getElementById("headerProgress");
+
+function normalize(value) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g,function(s) {
+      return String.fromCharCode(s.charCodeAt(0)-0xFEE0);
+    })
+    .replace(/[“”]/g,'"')
+    .replace(/[‘’]/g,"'")
+    .replace(/\s+/g,"");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value).replace(/`/g,"&#096;");
+}
+
+function saveState() {
+  if (!quizStarted) return;
+
+  localStorage.setItem(STORAGE_KEY,JSON.stringify({
+    currentIndex:currentIndex,
+    activeQuestionIndexes:activeQuestionIndexes,
+    userAnswers:userAnswers,
+    checkedAnswers:checkedAnswers,
+    quizStarted:true
+  }));
+}
+
+function loadState() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+    if (!data || !data.quizStarted) {
+      return false;
+    }
+
+    currentIndex = Number(data.currentIndex) || 0;
+
+    activeQuestionIndexes =
+      Array.isArray(data.activeQuestionIndexes) &&
+      data.activeQuestionIndexes.length
+        ? data.activeQuestionIndexes
+        : questions.map((_,index) => index);
+
+    userAnswers = data.userAnswers || {};
+    checkedAnswers = data.checkedAnswers || {};
+
+    return true;
+  } catch(error) {
+    return false;
+  }
+}
+
+function hasSavedState() {
+  return Boolean(localStorage.getItem(STORAGE_KEY));
+}
+
+function startQuiz(resume) {
+  if (resume) {
+    if (!loadState()) {
+      currentIndex = 0;
+    }
+  } else {
+    currentIndex = 0;
+    activeQuestionIndexes = questions.map((_,index) => index);
+    userAnswers = {};
+    checkedAnswers = {};
+  }
+
+  quizStarted = true;
+
+  startScreen.classList.add("hidden");
+  resultScreen.classList.add("hidden");
+  reviewScreen.classList.add("hidden");
+  quizScreen.classList.remove("hidden");
+  bottomControls.classList.remove("hidden");
+  headerProgress.classList.remove("hidden");
+
+  renderQuestion();
+  saveState();
+}
+
+function getQuestion() {
+  return questions[activeQuestionIndexes[currentIndex]];
+}
+
+function renderQuestion() {
+  const q = getQuestion();
+  const originalIndex = activeQuestionIndexes[currentIndex];
+
+  document.getElementById("category").textContent = q.category;
+  document.getElementById("questionNumber").textContent =
+    "問" + String(q.number).padStart(2,"0");
+
+  document.getElementById("questionText").textContent = q.question;
+
+  const description = document.getElementById("sharedDescription");
+
+  if (q.description) {
+    description.textContent = q.description;
+    description.classList.remove("hidden");
+  } else {
+    description.textContent = "";
+    description.classList.add("hidden");
+  }
+
+  const codeArea = document.getElementById("questionCode");
+
+  if (q.code) {
+    codeArea.innerHTML =
+      '<pre class="code">' + escapeHtml(q.code) + "</pre>";
+  } else {
+    codeArea.innerHTML = "";
+  }
+
+  renderAnswerArea(q,originalIndex);
+  renderFeedback(q,originalIndex);
+  renderProgress();
+  renderJumpGrid();
+
+  document.getElementById("prevBtn").disabled = currentIndex === 0;
+
+  document.getElementById("nextBtn").textContent =
+    currentIndex === activeQuestionIndexes.length-1
+      ? "結果を見る"
+      : "次へ →";
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+function renderAnswerArea(q,originalIndex) {
+  const area = document.getElementById("answerArea");
+  const saved = userAnswers[originalIndex];
+  const checked = Boolean(checkedAnswers[originalIndex]);
+
+  if (q.type === "single") {
+    let html = '<div class="options">';
+
+    q.options.forEach(function(option,index) {
+      const selected = saved === index;
+      let stateClass = selected ? "selected" : "";
+
+      if (checked) {
+        if (index === q.answer) {
+          stateClass += " correct";
+        } else if (selected) {
+          stateClass += " wrong";
+        }
+      }
+
+      html +=
+        '<button class="option ' + stateClass + '"' +
+        ' data-index="' + index + '"' +
+        (checked ? " disabled" : "") +
+        ">" +
+        '<span class="option-mark">' +
+        escapeHtml(q.marks[index]) +
+        "</span>" +
+        '<span class="option-text">' +
+        escapeHtml(option) +
+        "</span>" +
+        "</button>";
+    });
+
+    html += "</div>";
+    area.innerHTML = html;
+
+    area.querySelectorAll(".option").forEach(function(button) {
+      button.addEventListener("click",function() {
+        userAnswers[originalIndex] = Number(button.dataset.index);
+        saveState();
+        renderQuestion();
+      });
+    });
+  }
+
+  if (q.type === "multi") {
+    const selectedValues = Array.isArray(saved) ? saved : [];
+    let html =
+      '<div class="multi-hint">' +
+      q.answers.length +
+      "つ選択してください。すべて正しい場合のみ正解です。" +
+      "</div>" +
+      '<div class="options">';
+
+    q.options.forEach(function(option,index) {
+      const selected = selectedValues.includes(index);
+      let stateClass = selected ? "selected" : "";
+
+      if (checked) {
+        if (q.answers.includes(index)) {
+          stateClass += " correct";
+        } else if (selected) {
+          stateClass += " wrong";
+        }
+      }
+
+      html +=
+        '<button class="option ' + stateClass + '"' +
+        ' data-index="' + index + '"' +
+        (checked ? " disabled" : "") +
+        ">" +
+        '<span class="option-mark">' +
+        escapeHtml(q.marks[index]) +
+        "</span>" +
+        '<span class="option-text">' +
+        escapeHtml(option) +
+        "</span>" +
+        "</button>";
+    });
+
+    html += "</div>";
+    area.innerHTML = html;
+
+    area.querySelectorAll(".option").forEach(function(button) {
+      button.addEventListener("click",function() {
+        const index = Number(button.dataset.index);
+        const values = Array.isArray(userAnswers[originalIndex])
+          ? userAnswers[originalIndex].slice()
+          : [];
+
+        const position = values.indexOf(index);
+
+        if (position >= 0) {
+          values.splice(position,1);
+        } else {
+          values.push(index);
+        }
+
+        userAnswers[originalIndex] = values;
+        saveState();
+        renderQuestion();
+      });
+    });
+  }
+
+  if (q.type === "fill") {
+    const values = Array.isArray(saved)
+      ? saved
+      : Array(q.labels.length).fill("");
+
+    let html = '<div class="answer-inputs">';
+
+    q.labels.forEach(function(label,index) {
+      let inputClass = "";
+
+      if (checked) {
+        inputClass = isFillValueCorrect(q,index,values[index])
+          ? "correct-input"
+          : "wrong-input";
+      }
+
+      html +=
+        '<div class="input-row">' +
+        '<label for="answer-' + index + '">' +
+        escapeHtml(label) +
+        "</label>" +
+        '<input id="answer-' + index + '"' +
+        ' class="text-answer ' + inputClass + '"' +
+        ' type="text"' +
+        ' autocomplete="off"' +
+        ' autocapitalize="off"' +
+        ' spellcheck="false"' +
+        ' data-index="' + index + '"' +
+        ' value="' + escapeAttribute(values[index] || "") + '"' +
+        (checked ? " disabled" : "") +
+        ">" +
+        "</div>";
+    });
+
+    html += "</div>";
+    area.innerHTML = html;
+
+    area.querySelectorAll(".text-answer").forEach(function(input) {
+      input.addEventListener("input",function(event) {
+        const currentValues =
+          Array.isArray(userAnswers[originalIndex])
+            ? userAnswers[originalIndex].slice()
+            : Array(q.labels.length).fill("");
+
+        currentValues[Number(event.target.dataset.index)] =
+          event.target.value;
+
+        userAnswers[originalIndex] = currentValues;
+
+        saveState();
+        renderProgress();
+        renderJumpGrid();
+      });
+    });
+  }
+}
+
+function isFillValueCorrect(q,index,value) {
+  const normalized = normalize(value);
+
+  return q.answers[index].some(function(answer) {
+    return normalize(answer) === normalized;
+  });
+}
+
+function isQuestionCorrect(q,originalIndex) {
+  const answer = userAnswers[originalIndex];
+
+  if (q.type === "single") {
+    return answer === q.answer;
+  }
+
+  if (q.type === "multi") {
+    if (!Array.isArray(answer)) {
+      return false;
+    }
+
+    const user = answer.slice().sort(function(a,b) {
+      return a-b;
+    });
+
+    const correct = q.answers.slice().sort(function(a,b) {
+      return a-b;
+    });
+
+    return JSON.stringify(user) === JSON.stringify(correct);
+  }
+
+  if (q.type === "fill") {
+    if (!Array.isArray(answer) || answer.length < q.answers.length) {
+      return false;
+    }
+
+    return q.answers.every(function(_,index) {
+      return isFillValueCorrect(q,index,answer[index]);
+    });
+  }
+
+  return false;
+}
+
+function isAnswered(q,originalIndex) {
+  const answer = userAnswers[originalIndex];
+
+  if (q.type === "single") {
+    return Number.isInteger(answer);
+  }
+
+  if (q.type === "multi") {
+    return Array.isArray(answer) && answer.length > 0;
+  }
+
+  if (q.type === "fill") {
+    return (
+      Array.isArray(answer) &&
+      answer.length >= q.labels.length &&
+      answer.every(function(value) {
+        return String(value || "").trim() !== "";
+      })
+    );
+  }
+
+  return false;
+}
+
+/*
+  未回答でもこの関数を実行できます。
+  何も選択・入力していない場合は、不正解扱いで正答を表示します。
+*/
+function checkCurrentQuestion() {
+  const originalIndex = activeQuestionIndexes[currentIndex];
+
+  checkedAnswers[originalIndex] = true;
+
+  saveState();
+  renderQuestion();
+}
+
+function renderFeedback(q,originalIndex) {
+  const feedback = document.getElementById("feedback");
+  const explanation = document.getElementById("explanation");
+  const checkButton = document.getElementById("checkBtn");
+
+  if (!checkedAnswers[originalIndex]) {
+    feedback.className = "feedback";
+    feedback.innerHTML = "";
+
+    explanation.className = "explanation";
+    explanation.innerHTML = "";
+
+    checkButton.disabled = false;
+    checkButton.textContent = "採点／答えを見る";
+    return;
+  }
+
+  const answered = isAnswered(q,originalIndex);
+  const correct = isQuestionCorrect(q,originalIndex);
+
+  feedback.className =
+    "feedback show " +
+    (correct ? "correct-feedback" : "wrong-feedback");
+
+  if (correct) {
+    feedback.innerHTML = "正解です！";
+  } else if (!answered) {
+    feedback.innerHTML =
+      "未回答です。正答を表示します。" +
+      '<div class="answer-display">正答：' +
+      escapeHtml(q.displayAnswer) +
+      "</div>";
+  } else {
+    feedback.innerHTML =
+      "不正解です。" +
+      '<div class="answer-display">正答：' +
+      escapeHtml(q.displayAnswer) +
+      "</div>";
+  }
+
+  explanation.className = "explanation show";
+  explanation.innerHTML =
+    "<strong>解説：</strong>" +
+    escapeHtml(q.explanation);
+
+  checkButton.disabled = true;
+  checkButton.textContent = correct ? "正解済み" : "答えを表示中";
+}
+
+function renderProgress() {
+  const total = activeQuestionIndexes.length;
+
+  const answered = activeQuestionIndexes.filter(function(index) {
+    return isAnswered(questions[index],index);
+  }).length;
+
+  document.getElementById("progressText").textContent =
+    "問 " + (currentIndex+1) + " / " + total;
+
+  document.getElementById("answeredText").textContent =
+    "回答済み " + answered + "問";
+
+  document.getElementById("progressBar").style.width =
+    ((currentIndex+1)/total*100) + "%";
+}
+
+function renderJumpGrid() {
+  const grid = document.getElementById("jumpGrid");
+  let html = "";
+
+  activeQuestionIndexes.forEach(function(originalIndex,position) {
+    const q = questions[originalIndex];
+    const answered = isAnswered(q,originalIndex);
+    const checked = Boolean(checkedAnswers[originalIndex]);
+
+    let className = "jump-button";
+
+    if (answered || checked) {
+      className += " answered";
+    }
+
+    if (position === currentIndex) {
+      className += " current";
+    }
+
+    html +=
+      '<button class="' + className + '"' +
+      ' data-position="' + position + '">' +
+      q.number +
+      "</button>";
+  });
+
+  grid.innerHTML = html;
+
+  grid.querySelectorAll(".jump-button").forEach(function(button) {
+    button.addEventListener("click",function() {
+      currentIndex = Number(button.dataset.position);
+      saveState();
+      renderQuestion();
+    });
+  });
+}
+
+function nextQuestion() {
+  if (currentIndex < activeQuestionIndexes.length-1) {
+    currentIndex++;
+    saveState();
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function previousQuestion() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    saveState();
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  activeQuestionIndexes.forEach(function(index) {
+    checkedAnswers[index] = true;
+  });
+
+  const correct = activeQuestionIndexes.filter(function(index) {
+    return isQuestionCorrect(questions[index],index);
+  }).length;
+
+  const total = activeQuestionIndexes.length;
+  const wrong = total-correct;
+  const percent = total === 0
+    ? 0
+    : Math.round(correct/total*100);
+
+  document.getElementById("resultScore").textContent =
+    correct + " / " + total;
+
+  document.getElementById("correctCount").textContent = correct;
+  document.getElementById("wrongCount").textContent = wrong;
+  document.getElementById("percentCount").textContent = percent + "%";
+
+  quizScreen.classList.add("hidden");
+  reviewScreen.classList.add("hidden");
+  resultScreen.classList.remove("hidden");
+  bottomControls.classList.add("hidden");
+  headerProgress.classList.add("hidden");
+
+  saveState();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+function formatUserAnswer(q,index) {
+  const answer = userAnswers[index];
+
+  if (q.type === "single") {
+    if (!Number.isInteger(answer)) {
+      return "未回答";
+    }
+
+    return q.marks[answer] + "：" + q.options[answer];
+  }
+
+  if (q.type === "multi") {
+    if (!Array.isArray(answer) || answer.length === 0) {
+      return "未回答";
+    }
+
+    return answer
+      .slice()
+      .sort(function(a,b) {
+        return a-b;
+      })
+      .map(function(value) {
+        return q.marks[value];
+      })
+      .join("、");
+  }
+
+  if (q.type === "fill") {
+    if (!Array.isArray(answer)) {
+      return "未回答";
+    }
+
+    return q.labels.map(function(label,i) {
+      return label + "：" + (answer[i] || "未回答");
+    }).join("／");
+  }
+
+  return "未回答";
+}
+
+function showReview() {
+  const list = document.getElementById("reviewList");
+  let html = "";
+
+  activeQuestionIndexes.forEach(function(index) {
+    const q = questions[index];
+    const correct = isQuestionCorrect(q,index);
+
+    html +=
+      '<article class="review-item ' +
+      (correct ? "correct-review" : "wrong-review") +
+      '">' +
+      "<h3>問" +
+      String(q.number).padStart(2,"0") +
+      "　" +
+      (correct ? "〇 正解" : "× 不正解・未回答") +
+      "</h3>" +
+      '<div class="review-question">' +
+      escapeHtml(q.question) +
+      "</div>" +
+      '<div class="review-answer"><strong>あなたの回答：</strong>' +
+      escapeHtml(formatUserAnswer(q,index)) +
+      "</div>" +
+      '<div class="review-answer"><strong>正答：</strong>' +
+      escapeHtml(q.displayAnswer) +
+      "</div>" +
+      '<div class="review-answer"><strong>解説：</strong>' +
+      escapeHtml(q.explanation) +
+      "</div>" +
+      "</article>";
+  });
+
+  list.innerHTML = html;
+
+  resultScreen.classList.add("hidden");
+  reviewScreen.classList.remove("hidden");
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+function retryWrong() {
+  const wrongIndexes = activeQuestionIndexes.filter(function(index) {
+    return !isQuestionCorrect(questions[index],index);
+  });
+
+  if (wrongIndexes.length === 0) {
+    alert("全問正解です。再挑戦する不正解問題はありません。");
+    return;
+  }
+
+  activeQuestionIndexes = wrongIndexes;
+  currentIndex = 0;
+
+  wrongIndexes.forEach(function(index) {
+    delete userAnswers[index];
+    delete checkedAnswers[index];
+  });
+
+  quizStarted = true;
+
+  resultScreen.classList.add("hidden");
+  reviewScreen.classList.add("hidden");
+  quizScreen.classList.remove("hidden");
+  bottomControls.classList.remove("hidden");
+  headerProgress.classList.remove("hidden");
+
+  saveState();
+  renderQuestion();
+}
+
+function resetQuiz() {
+  const ok = confirm(
+    "回答履歴を削除して最初からやり直しますか？"
+  );
+
+  if (!ok) {
+    return;
+  }
+
+  localStorage.removeItem(STORAGE_KEY);
+
+  currentIndex = 0;
+  activeQuestionIndexes = questions.map(function(_,index) {
+    return index;
+  });
+
+  userAnswers = {};
+  checkedAnswers = {};
+  quizStarted = false;
+
+  resultScreen.classList.add("hidden");
+  reviewScreen.classList.add("hidden");
+  quizScreen.classList.add("hidden");
+  bottomControls.classList.add("hidden");
+  headerProgress.classList.add("hidden");
+  startScreen.classList.remove("hidden");
+
+  document.getElementById("resumeBtn").classList.add("hidden");
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+document.getElementById("startBtn").addEventListener("click",function() {
+  startQuiz(false);
+});
+
+document.getElementById("resumeBtn").addEventListener("click",function() {
+  startQuiz(true);
+});
+
+document.getElementById("checkBtn").addEventListener(
+  "click",
+  checkCurrentQuestion
+);
+
+document.getElementById("prevBtn").addEventListener(
+  "click",
+  previousQuestion
+);
+
+document.getElementById("nextBtn").addEventListener(
+  "click",
+  nextQuestion
+);
+
+document.getElementById("reviewBtn").addEventListener(
+  "click",
+  showReview
+);
+
+document.getElementById("retryWrongBtn").addEventListener(
+  "click",
+  retryWrong
+);
+
+document.getElementById("resetBtn").addEventListener(
+  "click",
+  resetQuiz
+);
+
+document.getElementById("backResultBtn").addEventListener(
+  "click",
+  function() {
+    reviewScreen.classList.add("hidden");
+    resultScreen.classList.remove("hidden");
+
+    window.scrollTo({
+      top:0,
+      behavior:"smooth"
+    });
+  }
+);
+
+if (hasSavedState()) {
+  document.getElementById("resumeBtn").classList.remove("hidden");
+}
+</script>
+</body>
+</html>
+<!-- =========================================================
+     PC対応・答え表示切替・現在問題リセット・詳細解説
+     追加アップデート
+     このコードを既存HTMLの一番最後に追加してください。
+========================================================== -->
+
+<style>
+/* ===== PC向け表示の強化 ===== */
+
+@media (min-width: 900px) {
+  body {
+    background:
+      linear-gradient(rgba(241,245,249,.92), rgba(241,245,249,.92)),
+      repeating-linear-gradient(
+        45deg,
+        #e2e8f0 0,
+        #e2e8f0 1px,
+        transparent 1px,
+        transparent 12px
+      );
+  }
+
+  .app {
+    width: min(1120px, calc(100% - 40px));
+  }
+
+  main {
+    padding: 30px 25px 145px;
+  }
+
+  .question-body {
+    padding: 30px 34px;
+  }
+
+  .question-text {
+    font-size: 18px;
+  }
+
+  .shared-description {
+    padding: 16px 18px;
+    font-size: 15px;
+  }
+
+  .code {
+    padding: 20px;
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .option {
+    min-height: 74px;
+    padding: 16px;
+  }
+
+  .answer-inputs {
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(220px, 1fr)
+    );
+    gap: 16px;
+  }
+
+  .bottom-controls {
+    padding: 12px 20px;
+  }
+
+  .control-inner {
+    grid-template-columns:
+      minmax(110px, .8fr)
+      minmax(190px, 1.4fr)
+      minmax(150px, 1fr)
+      minmax(110px, .8fr);
+    width: min(1070px, 100%);
+  }
+
+  .btn {
+    min-height: 52px;
+    font-size: 15px;
+  }
+
+  .jump-grid {
+    grid-template-columns: repeat(15, 1fr);
+  }
+
+  .review-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1300px) {
+  .app {
+    width: min(1240px, calc(100% - 60px));
+  }
+
+  .question-text {
+    font-size: 19px;
+  }
+
+  .code {
+    font-size: 16px;
+  }
+}
+
+/* ===== リセットボタン ===== */
+
+.btn-reset-current {
+  color: #7c2d12;
+  border: 1px solid #fdba74;
+  background: #ffedd5;
+}
+
+.btn-reset-current:hover {
+  color: #fff;
+  background: #ea580c;
+}
+
+.btn-reset-current:active {
+  background: #c2410c;
+}
+
+/* ===== 答えを隠している状態 ===== */
+
+.answer-hidden-message {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  color: #475569;
+  background: #f8fafc;
+  font-size: 14px;
+}
+
+/* ===== PCでのマウス操作 ===== */
+
+@media (hover: hover) {
+  .option:not(:disabled):hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(37,99,235,.12);
+  }
+
+  .jump-button:hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+  }
+
+  .btn-primary:hover {
+    background: #1d4ed8;
+  }
+
+  .btn-secondary:hover {
+    background: #cbd5e1;
+  }
+}
+
+/* スマホでは4つのボタンを2段にする */
+@media (max-width: 560px) {
+  .control-inner {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  #prevBtn {
+    order: 1;
+  }
+
+  #nextBtn {
+    order: 2;
+  }
+
+  #checkBtn {
+    order: 3;
+  }
+
+  #resetCurrentBtn {
+    order: 4;
+  }
+
+  #checkBtn,
+  #resetCurrentBtn {
+    min-height: 52px;
+  }
+}
+</style>
+
+<script>
+/*
+=============================================================
+  詳細解説への更新
+=============================================================
+*/
+
+const detailedExplanations = [
+  `openは、指定したファイルを開いてファイルオブジェクトを返すPythonの組み込み関数です。ファイルを開いたままにすると、他の処理から利用できなくなったり、書き込み内容が正しく反映されなかったりする可能性があります。そのため、処理が終わったらファイルオブジェクトのcloseメソッドを呼び出します。したがって①はopen、④はcloseです。`,
+
+  `open関数のmode引数に"w"を指定すると、ファイルを書き込みモードで開きます。既存ファイルに対して使用すると、原則として内容が空になってから書き込みが行われる点に注意が必要です。mode引数を省略した場合は、読み込みモードの"r"が使用されます。したがってAは"w"、Bは"r"です。`,
+
+  `with構文を使ってファイルを開くと、withブロックの処理が終了した時点でファイルが自動的に閉じられます。処理の途中で例外が発生した場合でも閉じる処理が行われるため、closeを直接記述するより安全です。例として「with open(...) as file:」のように記述します。`,
+
+  `for line in fileのようにファイルオブジェクトを繰り返し処理すると、ファイルを1行ずつ読み込めます。readなどで巨大なファイル全体を一度に読み込むと、大量のメモリが必要になる場合があります。1行ずつ処理すれば、同時にメモリへ保持するデータ量を抑えられるため、巨大なファイルでも処理しやすくなります。`,
+
+  `JSONはJavaScript Object Notationの略で、JavaScriptのオブジェクト表記を基にしたテキスト形式です。文字列、数値、真偽値、配列、オブジェクトなどを表現できます。人間が読みやすく、PythonやJavaScriptなど多くの言語で利用できるため、設定ファイルやWeb APIのデータ交換で広く使われています。`,
+
+  `Pythonのモジュールは、基本的に.pyファイルです。ただしimportするときは、通常は拡張子.pyを記述しません。例えばsub.pyを読み込む場合は「import sub」と記述します。「import sub.py」とすると、正しいモジュール指定にはなりません。`,
+
+  `import subと記述した場合、sub.py内のadd関数はsubというモジュールに所属しています。そのため、関数を呼び出すには「sub.add(3, 4)」と記述します。空欄はaddの直前にあるため、解答は「sub.」です。`,
+
+  `関数名の後ろに丸括弧を付けずに記述すると、関数を実行するのではなく、関数そのものを値として扱えます。「s = sub.add」によってadd関数を変数sへ代入し、その後「s(3, 4)」で実行しています。したがって空欄はsub.addです。`,
+
+  `from A import B as Cは、AからBを読み込み、そのBをCという別名で利用するという意味です。以後のコードではC.X()やC.YのようにCを使ってBの要素を参照します。したがってCはBの代替名です。`,
+
+  `pipはPythonで利用される代表的なパッケージ管理ツールです。「pip install パッケージ名」でパッケージをインストールできます。また、アンインストール、一覧表示、バージョン確認などにも利用されます。`,
+
+  `不適切なのはア、エ、クです。アについて、クラスは変数とメソッドの両方を必ず定義する必要はなく、passだけでも定義できます。エについて、インスタンスメソッドの第一引数は必要ですが、その名前を必ずselfにしなければならないという言語上の強制はありません。selfは強く推奨される慣例です。クについて、インスタンスメソッドからクラス変数へアクセスすることは可能です。`,
+
+  `Pythonでは、クラス名の後ろに丸括弧を付けることでインスタンスを生成します。Javaのようにnew演算子を記述する必要はありません。Humanクラスのインスタンスを変数hへ代入するため、「h = Human()」と記述します。`,
+
+  `静的メソッドを定義する場合は、メソッド定義の直前に@staticmethodを記述します。静的メソッドは、インスタンスを表すselfやクラスを表すclsを自動的に受け取りません。クラスに関連するものの、インスタンスやクラスの状態を直接必要としない処理に利用できます。`,
+
+  `クラス本体に記述された「name」は、単なる変数宣言ではありません。Pythonでは変数だけを先に宣言する構文がないため、nameという名前の値をその場で参照しようとします。しかしnameはまだ定義されていないため、Humanのインスタンスを生成する前にNameErrorが発生します。`,
+
+  `typeはCatクラスに定義されたクラス変数です。cat1を生成した後でCat.typeを"子猫"へ変更していますが、cat1自身にはtypeというインスタンス変数が作られていません。そのためcat1.typeもcat2.typeもCat.typeを参照し、両方とも"子猫"になります。表示は「子猫のタロウ」と「子猫のジロウ」です。`,
+
+  `継承を利用すると、派生クラスは基底クラスに定義された変数やメソッドを引き継いで利用できます。また、1つの基底クラスから複数の派生クラスを作成できます。Pythonは複数の基底クラスを指定する多重継承にも対応しています。派生クラス側で同名メソッドを再定義するオーバーライドも可能です。`,
+
+  `Pythonでは「class 派生クラス名(基底クラス名):」という形式で継承を指定します。MagazineクラスがBookクラスを継承するため、「class Magazine(Book):」とします。空欄はクラス名の後ろにあるため、(Book)が入ります。`,
+
+  `BusクラスはCarクラスを継承するため、アは(Car)です。派生クラスの初期化メソッドから基底クラスの初期化メソッドを呼ぶ場合は、super().__init__(count)と記述します。そのためイはsuper()です。生成されたインスタンスは変数busへ代入されているため、car_typeやcountを参照するウにはbusが入ります。`,
+
+  `SampleB("a1", "b1")を実行すると、SampleBの初期化メソッドへa1とb1が渡されます。最初にsuper().__init__(a)が実行され、SampleAの初期化メソッドによって「SampleA：a1」が表示されます。その後、SampleB側のprintによって「SampleB：b1」が表示されます。`,
+
+  `多重継承とは、1つの派生クラスが複数の基底クラスを継承することです。Pythonは多重継承をサポートしています。ただし、複数の基底クラスに同名メソッドがある場合、どのメソッドが呼ばれるかをMRO（メソッド解決順序）に従って判断します。複雑な継承構造では優先順位を理解する必要があるため、適切なのはウとエです。`,
+
+  `抽象基底クラスは、派生クラスに共通の形式やメソッドを持たせるために使用されます。この問題では、派生クラス側で具体的な処理を実装させるための空の抽象メソッドを定義するクラスとして説明されています。したがってウが最適です。`,
+
+  `@abstractmethodが付けられた抽象メソッドは、具体的な派生クラス側でオーバーライドして実装する必要があります。必要な抽象メソッドを実装していない派生クラスは、原則としてインスタンス化できません。これにより、派生クラスに必要なメソッドの実装を求められます。`,
+
+  `ABCMetaとabstractmethodはPython標準のabcモジュールに含まれているため、アはabcです。抽象メソッドにするにはメソッド定義の前に@abstractmethodを付けるため、イは@abstractmethodです。product.pyからitem.py内のItemを読み込むため、「from item import Item」となり、ウはitemです。`,
+
+  `ダックタイピングでは、オブジェクトのクラスや継承関係ではなく、必要なメソッドや属性を持っているかが重視されます。CatとCarに継承上の関係がなくても、同じ名前で同じように使用できるメソッドを持っていれば、同じ処理へ渡して利用できます。`,
+
+  `抽象基底クラスは、継承を利用して派生クラスに必要なメソッドの実装を求める仕組みです。一方、ダックタイピングでは継承関係を必須とせず、実行時に必要なメソッドや属性が存在すれば同じように扱います。したがって、それぞれの説明が正しいイが最適です。`,
+
+  `Pythonには、Javaなどのprivateと同じように、外部からのアクセスを完全に禁止する仕組みはありません。アンダースコアによる慣習や名前マングリングはありますが、一定の方法を使えば外部からもアクセスできます。そのため、完全な隠蔽処理はサポートされていないというウが最適です。`,
+
+  `名前の先頭に1つのアンダースコアを付けると、そのメンバーはクラスやモジュールの内部で使用することを意図していると示せます。ただし、外部からのアクセスを言語機能で禁止するものではありません。利用者が直接触らないようにする暗黙のルール、つまり慣習です。`,
+
+  `名前の先頭にアンダースコアを2つ付けると、名前マングリングが行われます。例えば__valueは、内部的に「_クラス名__value」のような名前へ変換されます。完全にアクセスできなくなるわけではありませんが、外部から誤って直接利用されにくくする仕組みです。`,
+
+  `コンストラクタでは、受け取ったhourをインスタンス変数_hourへ保存するため、アは_hourです。ゲッターには@propertyを付けることで、hour()ではなくhourという属性のように参照できます。セッターには@hour.setterを付け、代入された値を_hourへ保存します。`,
+
+  `問29でhourメソッドに@propertyが設定されているため、利用者側ではメソッドではなく属性のようにアクセスできます。したがってprint(a.hour)と記述します。丸括弧を付けてa.hour()とすると、プロパティから返された値を関数として呼ぼうとするため正しくありません。`
+];
+
+if (
+  typeof questions !== "undefined" &&
+  Array.isArray(questions)
+) {
+  questions.forEach(function(question,index) {
+    if (detailedExplanations[index]) {
+      question.explanation = detailedExplanations[index];
+    }
+  });
+}
+
+/*
+=============================================================
+  現在の問題をリセットするボタンを追加
+=============================================================
+*/
+
+(function addCurrentResetButton() {
+  const controls = document.querySelector(".control-inner");
+
+  if (!controls) {
+    return;
+  }
+
+  if (document.getElementById("resetCurrentBtn")) {
+    return;
+  }
+
+  const resetButton = document.createElement("button");
+
+  resetButton.id = "resetCurrentBtn";
+  resetButton.className = "btn btn-reset-current";
+  resetButton.type = "button";
+  resetButton.textContent = "この問題をリセット";
+
+  controls.insertBefore(
+    resetButton,
+    document.getElementById("nextBtn")
+  );
+
+  resetButton.addEventListener("click",function() {
+    if (
+      typeof activeQuestionIndexes === "undefined" ||
+      typeof currentIndex === "undefined"
+    ) {
+      return;
+    }
+
+    const originalIndex =
+      activeQuestionIndexes[currentIndex];
+
+    const hasAnswer =
+      Object.prototype.hasOwnProperty.call(
+        userAnswers,
+        originalIndex
+      );
+
+    const isChecked =
+      Boolean(checkedAnswers[originalIndex]);
+
+    if (!hasAnswer && !isChecked) {
+      alert("この問題にはリセットする回答がありません。");
+      return;
+    }
+
+    const ok = confirm(
+      "この問題の回答と採点状態をリセットしますか？"
+    );
+
+    if (!ok) {
+      return;
+    }
+
+    delete userAnswers[originalIndex];
+    delete checkedAnswers[originalIndex];
+
+    saveState();
+    renderQuestion();
+  });
+})();
+
+/*
+=============================================================
+  「採点／答えを見る」を、表示・非表示の切替式に変更
+=============================================================
+*/
+
+(function replaceAnswerButton() {
+  const oldButton = document.getElementById("checkBtn");
+
+  if (!oldButton) {
+    return;
+  }
+
+  /*
+    以前登録されたクリックイベントを取り除くため、
+    ボタンを複製して置き換えます。
+  */
+  const newButton = oldButton.cloneNode(true);
+
+  oldButton.parentNode.replaceChild(
+    newButton,
+    oldButton
+  );
+
+  newButton.disabled = false;
+  newButton.textContent = "採点／答えを見る";
+
+  newButton.addEventListener("click",function() {
+    const originalIndex =
+      activeQuestionIndexes[currentIndex];
+
+    /*
+      すでに答えが表示されている場合は隠す。
+      回答内容そのものは消さない。
+    */
+    if (checkedAnswers[originalIndex]) {
+      delete checkedAnswers[originalIndex];
+
+      saveState();
+      renderQuestion();
+      return;
+    }
+
+    /*
+      未回答の場合でも答えを表示する。
+    */
+    checkedAnswers[originalIndex] = true;
+
+    saveState();
+    renderQuestion();
+  });
+})();
+
+/*
+=============================================================
+  答え表示後もボタンを押せるようにする
+=============================================================
+*/
+
+if (typeof renderFeedback === "function") {
+  const originalRenderFeedback = renderFeedback;
+
+  renderFeedback = function(q,originalIndex) {
+    originalRenderFeedback(q,originalIndex);
+
+    const checkButton =
+      document.getElementById("checkBtn");
+
+    if (!checkButton) {
+      return;
+    }
+
+    /*
+      答えを表示していてもボタンを無効にしない。
+      もう一度押すと答えを隠せる。
+    */
+    checkButton.disabled = false;
+
+    if (checkedAnswers[originalIndex]) {
+      checkButton.textContent = "答えを隠す";
+    } else {
+      checkButton.textContent =
+        "採点／答えを見る";
+    }
+  };
+}
+
+/*
+=============================================================
+  キーボード操作
+=============================================================
+*/
+
+document.addEventListener("keydown",function(event) {
+  /*
+    入力欄へ文字を入力しているときは、
+    ショートカットを実行しない。
+  */
+  const activeTag =
+    document.activeElement &&
+    document.activeElement.tagName;
+
+  if (
+    activeTag === "INPUT" ||
+    activeTag === "TEXTAREA"
+  ) {
+    return;
+  }
+
+  if (
+    typeof quizScreen === "undefined" ||
+    quizScreen.classList.contains("hidden")
+  ) {
+    return;
+  }
+
+  /*
+    左矢印：前の問題
+    右矢印：次の問題
+    Enter：答えの表示・非表示
+    R：現在の問題をリセット
+  */
+
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    document.getElementById("prevBtn").click();
+  }
+
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    document.getElementById("nextBtn").click();
+  }
+
+  if (event.key === "Enter") {
+    event.preventDefault();
+    document.getElementById("checkBtn").click();
+  }
+
+  if (
+    event.key === "r" ||
+    event.key === "R"
+  ) {
+    event.preventDefault();
+    document.getElementById("resetCurrentBtn").click();
+  }
+});
+
+/*
+=============================================================
+  PC向け操作説明を開始画面へ追加
+=============================================================
+*/
+
+(function addPcGuide() {
+  const startCard =
+    document.getElementById("startScreen");
+
+  if (!startCard) {
+    return;
+  }
+
+  if (document.getElementById("pcControlGuide")) {
+    return;
+  }
+
+  const guide = document.createElement("div");
+
+  guide.id = "pcControlGuide";
+  guide.className = "notice";
+
+  guide.innerHTML =
+    "<strong>PCでの操作</strong><br>" +
+    "マウスで選択できるほか、" +
+    "←キーで前の問題、→キーで次の問題、" +
+    "Enterキーで答えの表示・非表示、" +
+    "Rキーで現在の問題をリセットできます。";
+
+  const startButton =
+    document.getElementById("startBtn");
+
+  startCard.insertBefore(
+    guide,
+    startButton
+  );
+})();
+
+/*
+=============================================================
+  読み込み直後に表示を更新
+=============================================================
+*/
+
+if (
+  typeof quizStarted !== "undefined" &&
+  quizStarted &&
+  typeof renderQuestion === "function"
+) {
+  renderQuestion();
+}
+</script>
+<!-- =========================================================
+     PC画面大型化・表示サイズ切り替え機能
+     既存HTMLの一番最後にそのまま追加してください
+========================================================== -->
+
+<style>
+/* 表示サイズ切り替えボタン */
+#pcSizeController {
+  display:none;
+}
+
+@media (min-width:900px) {
+  #pcSizeController {
+    display:flex;
+    position:fixed;
+    top:12px;
+    right:16px;
+    z-index:1000;
+    align-items:center;
+    gap:5px;
+    padding:7px;
+    border:1px solid rgba(255,255,255,.35);
+    border-radius:14px;
+    background:rgba(15,23,42,.88);
+    box-shadow:0 5px 20px rgba(0,0,0,.22);
+    backdrop-filter:blur(12px);
+  }
+
+  #pcSizeController .size-title {
+    margin:0 5px;
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+  }
+
+  #pcSizeController button {
+    min-width:58px;
+    min-height:37px;
+    padding:5px 10px;
+    border:1px solid #94a3b8;
+    border-radius:9px;
+    color:#fff;
+    background:#334155;
+    font-size:13px;
+    font-weight:800;
+    cursor:pointer;
+  }
+
+  #pcSizeController button:hover {
+    background:#475569;
+  }
+
+  #pcSizeController button.active {
+    color:#1e3a8a;
+    border-color:#facc15;
+    background:#facc15;
+  }
+
+  /*
+   * PCでは画面の横幅を広く使う
+   */
+  .app {
+    width:calc(100% - 24px) !important;
+    max-width:1500px !important;
+  }
+
+  main {
+    padding-right:20px !important;
+    padding-left:20px !important;
+  }
+
+  .question-card {
+    width:100%;
+  }
+
+  /*
+   * 長い選択肢が読みやすいように、
+   * 1300px未満では1列表示にする
+   */
+  .options {
+    grid-template-columns:1fr !important;
+  }
+
+  .question-top {
+    padding:18px 25px;
+  }
+
+  .category {
+    font-size:14px;
+  }
+
+  .question-number {
+    font-size:24px;
+  }
+
+  .jump-grid {
+    grid-template-columns:repeat(15,1fr) !important;
+  }
+}
+
+/* =========================================================
+   PC・標準サイズ
+========================================================= */
+
+@media (min-width:900px) {
+  body.pc-size-normal {
+    font-size:16px;
+  }
+
+  body.pc-size-normal .app {
+    max-width:1300px !important;
+  }
+
+  body.pc-size-normal .question-body {
+    padding:26px 30px !important;
+  }
+
+  body.pc-size-normal .question-text {
+    font-size:18px !important;
+    line-height:1.8;
+  }
+
+  body.pc-size-normal .option {
+    min-height:64px;
+    padding:14px 16px;
+    font-size:16px;
+  }
+
+  body.pc-size-normal .code {
+    padding:18px;
+    font-size:15px !important;
+    line-height:1.75;
+  }
+
+  body.pc-size-normal .shared-description {
+    font-size:15px;
+  }
+
+  body.pc-size-normal .explanation {
+    font-size:15px;
+  }
+}
+
+/* =========================================================
+   PC・大サイズ
+========================================================= */
+
+@media (min-width:900px) {
+  body.pc-size-large {
+    font-size:18px;
+  }
+
+  body.pc-size-large .app {
+    max-width:1500px !important;
+  }
+
+  body.pc-size-large .header-title {
+    font-size:27px;
+  }
+
+  body.pc-size-large .header-sub {
+    font-size:14px;
+  }
+
+  body.pc-size-large .question-body {
+    padding:32px 38px !important;
+  }
+
+  body.pc-size-large .question-text {
+    margin-bottom:22px;
+    font-size:22px !important;
+    line-height:1.85;
+  }
+
+  body.pc-size-large .shared-description {
+    padding:18px 20px;
+    font-size:17px !important;
+    line-height:1.85;
+  }
+
+  body.pc-size-large .option {
+    min-height:76px;
+    padding:18px 20px;
+    font-size:18px !important;
+    line-height:1.75;
+  }
+
+  body.pc-size-large .option-mark {
+    flex-basis:38px;
+    width:38px;
+    height:38px;
+    font-size:18px;
+  }
+
+  body.pc-size-large .code {
+    padding:22px;
+    font-size:18px !important;
+    line-height:1.85;
+  }
+
+  body.pc-size-large .input-row label {
+    font-size:18px;
+  }
+
+  body.pc-size-large .text-answer {
+    min-height:60px;
+    padding:14px 16px;
+    font-size:18px;
+  }
+
+  body.pc-size-large .feedback {
+    padding:18px;
+    font-size:18px;
+  }
+
+  body.pc-size-large .explanation {
+    padding:18px 20px;
+    font-size:17px !important;
+    line-height:1.9;
+  }
+
+  body.pc-size-large .btn {
+    min-height:58px;
+    font-size:17px;
+  }
+
+  body.pc-size-large .jump-button {
+    min-height:55px;
+    font-size:16px;
+  }
+}
+
+/* =========================================================
+   PC・最大サイズ
+========================================================= */
+
+@media (min-width:900px) {
+  body.pc-size-max {
+    font-size:20px;
+  }
+
+  body.pc-size-max .app {
+    width:calc(100% - 12px) !important;
+    max-width:1750px !important;
+  }
+
+  body.pc-size-max main {
+    padding:26px 10px 155px !important;
+  }
+
+  body.pc-size-max .header-inner {
+    padding-right:260px;
+    padding-left:28px;
+  }
+
+  body.pc-size-max .header-title {
+    font-size:31px;
+  }
+
+  body.pc-size-max .header-sub {
+    font-size:15px;
+  }
+
+  body.pc-size-max .progress-info {
+    font-size:16px;
+  }
+
+  body.pc-size-max .question-top {
+    padding:22px 32px;
+  }
+
+  body.pc-size-max .category {
+    font-size:16px;
+  }
+
+  body.pc-size-max .question-number {
+    font-size:29px;
+  }
+
+  body.pc-size-max .question-body {
+    padding:40px 48px !important;
+  }
+
+  body.pc-size-max .question-text {
+    margin-bottom:26px;
+    font-size:26px !important;
+    line-height:1.9;
+  }
+
+  body.pc-size-max .shared-description {
+    padding:22px 24px;
+    font-size:20px !important;
+    line-height:1.9;
+  }
+
+  body.pc-size-max .option {
+    min-height:88px;
+    padding:21px 24px;
+    border-width:3px;
+    font-size:21px !important;
+    line-height:1.8;
+  }
+
+  body.pc-size-max .option-mark {
+    flex-basis:44px;
+    width:44px;
+    height:44px;
+    font-size:21px;
+  }
+
+  body.pc-size-max .code {
+    padding:27px;
+    font-size:21px !important;
+    line-height:1.9;
+  }
+
+  body.pc-size-max .answer-inputs {
+    grid-template-columns:1fr !important;
+  }
+
+  body.pc-size-max .input-row label {
+    margin-bottom:8px;
+    font-size:21px;
+  }
+
+  body.pc-size-max .text-answer {
+    min-height:68px;
+    padding:16px 19px;
+    font-size:21px;
+  }
+
+  body.pc-size-max .multi-hint {
+    font-size:17px;
+  }
+
+  body.pc-size-max .feedback {
+    padding:22px;
+    font-size:21px;
+  }
+
+  body.pc-size-max .explanation {
+    padding:22px 25px;
+    font-size:20px !important;
+    line-height:2;
+  }
+
+  body.pc-size-max .answer-display {
+    font-size:21px;
+  }
+
+  body.pc-size-max .btn {
+    min-height:64px;
+    font-size:19px;
+  }
+
+  body.pc-size-max .jump-grid {
+    grid-template-columns:repeat(10,1fr) !important;
+  }
+
+  body.pc-size-max .jump-button {
+    min-height:62px;
+    font-size:19px;
+  }
+
+  body.pc-size-max .result-card,
+  body.pc-size-max .start-card {
+    padding:35px 42px;
+    font-size:20px;
+  }
+
+  body.pc-size-max .result-score {
+    width:190px;
+    height:190px;
+    font-size:36px;
+  }
+
+  body.pc-size-max .review-question,
+  body.pc-size-max .review-answer {
+    font-size:18px;
+  }
+}
+
+/*
+ * 横幅が広いPCでは、大サイズのときのみ選択肢を2列にできる。
+ * 最大サイズでは読みやすさ優先で1列のまま。
+ */
+@media (min-width:1500px) {
+  body.pc-size-normal .options,
+  body.pc-size-large .options {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+  body.pc-size-max .options {
+    grid-template-columns:1fr !important;
+  }
+}
+
+/*
+ * PCで下部ボタンが窮屈にならないようにする
+ */
+@media (min-width:900px) {
+  .control-inner {
+    width:min(1450px,calc(100% - 20px)) !important;
+  }
+}
+</style>
+
+<div id="pcSizeController">
+  <span class="size-title">表示サイズ</span>
+  <button type="button" data-pc-size="normal">標準</button>
+  <button type="button" data-pc-size="large">大</button>
+  <button type="button" data-pc-size="max">最大</button>
+</div>
+
+<script>
+(function setupPcSizeController() {
+  const STORAGE_NAME = "pythonQuizPcDisplaySize";
+  const controller = document.getElementById("pcSizeController");
+
+  if (!controller) {
+    return;
+  }
+
+  const sizeButtons = controller.querySelectorAll(
+    "button[data-pc-size]"
+  );
+
+  function applyPcSize(size) {
+    /*
+     * 以前のサイズ設定をすべて削除
+     */
+    document.body.classList.remove(
+      "pc-size-normal",
+      "pc-size-large",
+      "pc-size-max"
+    );
+
+    /*
+     * 指定されたサイズを適用
+     */
+    if (size === "normal") {
+      document.body.classList.add("pc-size-normal");
+    } else if (size === "max") {
+      document.body.classList.add("pc-size-max");
+    } else {
+      size = "large";
+      document.body.classList.add("pc-size-large");
+    }
+
+    /*
+     * 選択中のボタンを分かりやすくする
+     */
+    sizeButtons.forEach(function(button) {
+      if (button.dataset.pcSize === size) {
+        button.classList.add("active");
+      } else {
+        button.classList.remove("active");
+      }
+    });
+
+    /*
+     * 選択したサイズを保存
+     */
+    localStorage.setItem(STORAGE_NAME, size);
+  }
+
+  sizeButtons.forEach(function(button) {
+    button.addEventListener("click", function() {
+      applyPcSize(button.dataset.pcSize);
+    });
+  });
+
+  /*
+   * 前回選んだサイズがあれば復元する。
+   * 初めて開いた場合は「大」にする。
+   */
+  const savedSize =
+    localStorage.getItem(STORAGE_NAME) || "large";
+
+  applyPcSize(savedSize);
+
+  /*
+   * キーボードでも表示サイズを変更可能
+   *
+   * Ctrl + 1：標準
+   * Ctrl + 2：大
+   * Ctrl + 3：最大
+   */
+  document.addEventListener("keydown", function(event) {
+    if (!event.ctrlKey) {
+      return;
+    }
+
+    if (event.key === "1") {
+      event.preventDefault();
+      applyPcSize("normal");
+    }
+
+    if (event.key === "2") {
+      event.preventDefault();
+      applyPcSize("large");
+    }
+
+    if (event.key === "3") {
+      event.preventDefault();
+      applyPcSize("max");
+    }
+  });
+})();
+</script>
+<!-- =========================================================
+     問題番号の小型化・答え表示後も回答可能にする
+     現在のHTMLファイルの一番最後に追加してください
+========================================================== -->
+
+<style>
+/* =========================================================
+   下部に並ぶ問題番号を小さくする
+========================================================= */
+
+.jump-grid,
+body.pc-size-normal .jump-grid,
+body.pc-size-large .jump-grid,
+body.pc-size-max .jump-grid {
+  display:grid !important;
+  grid-template-columns:repeat(
+    auto-fit,
+    minmax(34px,42px)
+  ) !important;
+  justify-content:center !important;
+  gap:6px !important;
+  margin-top:15px !important;
+}
+
+.jump-button,
+body.pc-size-normal .jump-button,
+body.pc-size-large .jump-button,
+body.pc-size-max .jump-button {
+  width:40px !important;
+  min-width:40px !important;
+  max-width:40px !important;
+  height:40px !important;
+  min-height:40px !important;
+  max-height:40px !important;
+  padding:0 !important;
+  border-radius:8px !important;
+  font-size:13px !important;
+  line-height:1 !important;
+  aspect-ratio:auto !important;
+}
+
+/* 現在の問題を示す黄色い枠も小さくする */
+.jump-button.current {
+  outline-width:2px !important;
+  outline-offset:1px !important;
+}
+
+/* スマホではさらに少し小さくする */
+@media (max-width:560px) {
+  .jump-grid,
+  body.pc-size-normal .jump-grid,
+  body.pc-size-large .jump-grid,
+  body.pc-size-max .jump-grid {
+    grid-template-columns:repeat(
+      auto-fit,
+      minmax(30px,36px)
+    ) !important;
+    gap:5px !important;
+  }
+
+  .jump-button,
+  body.pc-size-normal .jump-button,
+  body.pc-size-large .jump-button,
+  body.pc-size-max .jump-button {
+    width:34px !important;
+    min-width:34px !important;
+    max-width:34px !important;
+    height:34px !important;
+    min-height:34px !important;
+    max-height:34px !important;
+    font-size:11px !important;
+    border-radius:7px !important;
+  }
+}
+
+/* 答え表示後も操作できることを見た目でも示す */
+.option.answer-editable,
+.text-answer.answer-editable {
+  cursor:pointer !important;
+}
+
+.text-answer.answer-editable {
+  cursor:text !important;
+}
+
+/* 答え表示中の選択肢へマウスを合わせたとき */
+@media (hover:hover) {
+  .option.answer-editable:hover {
+    box-shadow:0 4px 14px rgba(37,99,235,.16);
+  }
+}
+</style>
+
+<script>
+(function enableEditingAfterShowingAnswer() {
+  /*
+   * 問題を描画した後、選択肢と入力欄のdisabledを解除します。
+   * これにより、正解を表示した後でも回答を変更できます。
+   */
+
+  function enableCurrentAnswerControls() {
+    const answerArea =
+      document.getElementById("answerArea");
+
+    if (!answerArea) {
+      return;
+    }
+
+    /*
+     * 選択問題・複数選択問題
+     */
+    answerArea
+      .querySelectorAll(".option")
+      .forEach(function(option) {
+        option.disabled = false;
+        option.removeAttribute("disabled");
+        option.classList.add("answer-editable");
+      });
+
+    /*
+     * 記述問題
+     */
+    answerArea
+      .querySelectorAll(".text-answer")
+      .forEach(function(input) {
+        input.disabled = false;
+        input.removeAttribute("disabled");
+        input.readOnly = false;
+        input.classList.add("answer-editable");
+      });
+  }
+
+  /*
+   * 現在のrenderQuestionを保存します。
+   * 以前追加したPC対応や答え表示切り替え機能も維持されます。
+   */
+  if (typeof renderQuestion === "function") {
+    const previousRenderQuestion = renderQuestion;
+
+    renderQuestion = function() {
+      previousRenderQuestion();
+
+      /*
+       * HTML描画が完了した直後に入力を有効化
+       */
+      enableCurrentAnswerControls();
+    };
+  }
+
+  /*
+   * 現在表示されている問題にもすぐ反映
+   */
+  enableCurrentAnswerControls();
+
+  /*
+   * 念のため、画面内容が変更された場合にも有効化します。
+   */
+  const answerArea =
+    document.getElementById("answerArea");
+
+  if (answerArea) {
+    const observer = new MutationObserver(function() {
+      enableCurrentAnswerControls();
+    });
+
+    observer.observe(answerArea,{
+      childList:true,
+      subtree:true
+    });
+  }
+})();
+</script>
